@@ -1,14 +1,25 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
+import {Route, Routes, Link, NavLink, useNavigate} from 'react-router-dom'
+import axios from 'axios'
 import './App.css'
 import Home from './pages/Home'
 import Profile from './pages/Profile'
 import About from './pages/About'
-import {Route, Routes, Link, NavLink, useNavigate} from 'react-router-dom'
 
 function App() {
+  const [products, setProducts] = useState([])
   const navigate = useNavigate()
+
+  useEffect(()=>{
+    axios.get('https://fakestoreapi.com/products')
+    .then(data => {
+      console.log(data.data)
+      setProducts(data.data)
+    })
+    .catch(error => console.log(error))
+  },[])
 
   const navStyle = {
     fontWeight: "bold",
@@ -22,6 +33,7 @@ function App() {
   const goBackHome = () => {
     navigate('/');
   }
+
 
   return (
     <>
@@ -50,9 +62,11 @@ function App() {
               Home
             </NavLink>
           </li>
+          {products ? products.map(singleProd => {
+            return(
           <li>
           <NavLink
-            to="/profile/123"  
+            to={"/profile/"+singleProd.id}  
             style={({ isActive }) => {
               return {
                 fontWeight: isActive ? "bold" : "",
@@ -60,22 +74,13 @@ function App() {
               };
             }}
           >
-            Profile 123
+            {singleProd.title}
           </NavLink>
-          </li>
-          <li>
-          <NavLink
-            to="/profile/555"  
-            style={({ isActive }) => {
-              return {
-                fontWeight: isActive ? "bold" : "",
-                color: isActive ? "red" : "black",
-              };
-            }}
-          >
-            Profile 555
-          </NavLink>
-          </li>
+          </li>)
+          })
+          :
+          <li>Loading products</li>
+          }
           <li>
           <NavLink
             to="/about"  
